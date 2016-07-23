@@ -1,0 +1,118 @@
+<html>
+<head>
+    <style>
+        body
+        {
+            font-size:25px;
+        }
+    </style>
+</head>
+<body>
+<input type="text" id="Q">
+<button type="button" id="press">ADD</button>
+<button type ="button" id="clear">CLEAR</button>
+<ul id ="msg" style="list-style-type:none"></ul>
+<script src="jquery.js"></script>
+<script>
+
+    $(document).ready(function()
+    {
+        $.post('/initial',function(data,status)
+        {
+
+            if(data != null)
+            {
+                var ans='';
+                for(var x=0;x<data.length;x++)
+                {
+                    if(data[x].done==false)
+                        ans+='<li>' + '<input type="checkbox" class="abc" onclick="func()">' + data[x].data + '</li>';
+                    else
+                        ans+='<li style="text-decoration:line-through">'+'<input type="checkbox"  checked>'+ data[x].data+'</li>';
+                }
+
+                $("#msg").html(ans);
+            }
+        })
+
+    });
+
+
+
+    $("#press").click(function()
+    {
+        var object={};
+        object.value= $("#Q").val();
+        $.post('/addtodo',object,function (data , status) {
+
+            var ans='';
+            for(var x=0;x<data.length;x++)
+            {
+                if(data[x].done==false)
+                    ans+='<li>' + '<input type="checkbox" class="abc"  onclick="func()" >' + data[x].data + '</li>';
+                else
+                    ans+='<li style="text-decoration:line-through">'+'<input type="checkbox"  checked>'+ data[x].data+'</li>';
+            }
+
+
+            $("#msg").html(ans);
+        });
+    });
+
+
+
+
+
+    $("#clear").click( function() {
+
+        $.post('/clear',function(data,status)
+        {
+            var ans='';
+            if(data.length)
+            {
+
+                for(var x=0;x<data.length;x++)
+                {
+                    ans+='<li>'+'<input type="checkbox" class="abc" onclick="func()"  >'+ data[x].data+'</li>';
+                }
+            }
+            $("#msg").html(ans);
+
+        });
+    });
+
+
+
+
+    function func()
+    {
+        var val = $(".abc");
+        var obj={};
+        for(var x=0;x<val.length;x++)
+        {
+            if(val.eq(x).is(":checked"))
+            {
+                obj.text = val.eq(x).parent().text();
+            }
+        }
+
+        $.post('/click' ,obj , function(data,status) {
+
+            var ans='';
+            for(var x=0;x<data.length;x++)
+            {
+                if(data[x].done == 0)
+                    ans+='<li>' + '<input type="checkbox" class="abc"  onclick="func()" >' + data[x].data + '</li>';
+
+                else
+                   ans+='<li style="text-decoration:line-through">'+'<input type="checkbox"  checked>'+ data[x].data+'</li>';
+            }
+            $("#msg").html(ans);
+
+        });
+    }
+
+</script>
+</body>
+</html>
+
